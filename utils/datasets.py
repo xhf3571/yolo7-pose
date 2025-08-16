@@ -511,11 +511,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
                 else:
                     ne += 1  # label empty
                     l = np.zeros((0, 33), dtype=np.float32) if kpt_label else np.zeros((0, 5), dtype=np.float32)
-
-                    else:
-                        nm += 1  # label missing
-                        l = np.zeros((0, 33), dtype=np.float32) if kpt_label else np.zeros((0, 5), dtype=np.float32)
-
+                
                 x[im_file] = [l, shape, segments]
             except Exception as e:
                 nc += 1
