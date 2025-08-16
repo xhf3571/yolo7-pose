@@ -91,7 +91,7 @@ def plot_one_box(x, im, color=None, label=None, line_thickness=3, kpt_label=Fals
 
 
 def plot_skeleton_kpts(im, kpts, steps, orig_shape=None):
-    #Plot the skeleton and keypointsfor coco datatset
+    #Plot the skeleton and keypoints for CrowdPose dataset
     palette = np.array([[255, 128, 0], [255, 153, 51], [255, 178, 102],
                         [230, 230, 0], [255, 153, 255], [153, 204, 255],
                         [255, 102, 255], [255, 51, 255], [102, 178, 255],
@@ -100,12 +100,13 @@ def plot_skeleton_kpts(im, kpts, steps, orig_shape=None):
                         [51, 255, 51], [0, 255, 0], [0, 0, 255], [255, 0, 0],
                         [255, 255, 255]])
 
-    skeleton = [[16, 14], [14, 12], [17, 15], [15, 13], [12, 13], [6, 12],
-                [7, 13], [6, 7], [6, 8], [7, 9], [8, 10], [9, 11], [2, 3],
-                [1, 2], [1, 3], [2, 4], [3, 5], [4, 6], [5, 7]]
+    # CrowdPose 骨架定义 (14 个关键点)
+    # 1-左肩, 2-右肩, 3-左肘, 4-右肘, 5-左腕, 6-右腕, 7-左髋, 8-右髋, 9-左膝, 10-右膝, 11-左踝, 12-右踝, 13-头部, 14-颈部
+    skeleton = [[14, 13], [14, 1], [14, 2], [1, 3], [2, 4], [3, 5], [4, 6],
+                [14, 7], [14, 8], [7, 9], [8, 10], [9, 11], [10, 12], [7, 8]]
 
-    pose_limb_color = palette[[9, 9, 9, 9, 7, 7, 7, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16, 16]]
-    pose_kpt_color = palette[[16, 16, 16, 16, 16, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9]]
+    pose_limb_color = palette[[9, 9, 9, 7, 7, 0, 0, 7, 7, 0, 0, 0, 0, 16]]
+    pose_kpt_color = palette[[9, 9, 7, 7, 0, 0, 7, 7, 0, 0, 0, 0, 16, 16]]
     radius = 5
     num_kpts = len(kpts) // steps
 
