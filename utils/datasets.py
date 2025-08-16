@@ -361,7 +361,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         self.stride = stride
         self.path = path
         self.kpt_label = kpt_label
-        self.flip_index = [0, 2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11]  # for CrowdPose's 13 keypoints
+        self.flip_index = [0, 2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 13]  # for CrowdPose's 14 keypoints
 
         try:
             f = []  # image files
