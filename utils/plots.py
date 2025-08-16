@@ -100,13 +100,18 @@ def plot_skeleton_kpts(im, kpts, steps, orig_shape=None):
                         [51, 255, 51], [0, 255, 0], [0, 0, 255], [255, 0, 0],
                         [255, 255, 255]])
 
-    # CrowdPose 骨架定义 (13 个关键点)
-    # 0-左肩, 1-右肩, 2-左肘, 3-右肘, 4-左腕, 5-右腕, 6-左髋, 7-右髋, 8-左膝, 9-右膝, 10-左踝, 11-右踝, 12-头部
-    skeleton = [[12, 0], [12, 1], [0, 2], [1, 3], [2, 4], [3, 5],
-                [12, 6], [12, 7], [6, 8], [7, 9], [8, 10], [9, 11], [6, 7]]
+    # CrowdPose 骨架定义 (官方定义)
+    # 根据官方定义，关键点索引为：
+    # 0-nose, 1-left_eye, 2-right_eye, 3-left_ear, 4-right_ear, 5-left_shoulder, 6-right_shoulder,
+    # 7-left_elbow, 8-right_elbow, 9-left_wrist, 10-right_wrist, 11-left_hip, 12-right_hip,
+    # 13-left_knee, 14-right_knee, 15-left_ankle, 16-right_ankle
+    skeleton = [
+        [16, 14], [14, 12], [17, 15], [15, 13], [12, 13],
+        [6, 12], [7, 13], [6, 7], [6, 8], [7, 9], [8, 10], [9, 11]
+    ]
 
-    pose_limb_color = palette[[9, 9, 7, 7, 0, 0, 7, 7, 0, 0, 0, 0, 16]]
-    pose_kpt_color = palette[[9, 9, 7, 7, 0, 0, 7, 7, 0, 0, 0, 0, 16]]
+    pose_limb_color = palette[[9, 9, 9, 9, 7, 7, 7, 0, 0, 0, 0, 0]]
+    pose_kpt_color = palette[[16, 16, 16, 16, 16, 9, 9, 9, 9, 9, 9, 7, 7, 7, 7, 7, 7]]
     radius = 5
     num_kpts = len(kpts) // steps
 
