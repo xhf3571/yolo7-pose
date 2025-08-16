@@ -361,7 +361,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
         self.stride = stride
         self.path = path
         self.kpt_label = kpt_label
-        self.flip_index = [0, 2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15]
+        self.flip_index = [0, 2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 13]  # Updated for CrowdPose's 14 keypoints
 
         try:
             f = []  # image files
@@ -492,29 +492,29 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
                         l = np.array(l, dtype=np.float32)
                     if len(l):
                         assert (l >= 0).all(), 'negative labels'
-                        if kpt_label:
-                            assert l.shape[1] == 56, 'labels require 56 columns each'
-                            assert (l[:, 5::3] <= 1).all(), 'non-normalized or out of bounds coordinate labels'
-                            assert (l[:, 6::3] <= 1).all(), 'non-normalized or out of bounds coordinate labels'
-                            # print("l shape", l.shape)
-                            kpts = np.zeros((l.shape[0], 39))
-                            for i in range(len(l)):
-                                kpt = np.delete(l[i,5:], np.arange(2, l.shape[1]-5, 3))  #remove the occlusion paramater from the GT
-                                kpts[i] = np.hstack((l[i, :5], kpt))
-                            l = kpts
-                            assert l.shape[1] == 39, 'labels require 39 columns each after removing occlusion paramater'
-                        else:
-                            assert l.shape[1] == 5, 'labels require 5 columns each'
-                            assert (l[:, 1:5] <= 1).all(), 'non-normalized or out of bounds coordinate labels'
+                    if kpt_label:
+                        assert l.shape[1] == 41, 'labels require 41 columns each for CrowdPose (14 keypoints)'
+                        assert (l[:, 5::3] <= 1).all(), 'non-normalized or out of bounds coordinate labels'
+                        assert (l[:, 6::3] <= 1).all(), 'non-normalized or out of bounds coordinate labels'
+                        # print("l shape", l.shape)
+                        kpts = np.zeros((l.shape[0], 33))
+                        for i in range(len(l)):
+                            kpt = np.delete(l[i,5:], np.arange(2, l.shape[1]-5, 3))  #remove the occlusion paramater from the GT
+                            kpts[i] = np.hstack((l[i, :5], kpt))
+                        l = kpts
+                        assert l.shape[1] == 33, 'labels require 33 columns each after removing occlusion paramater'
+                    else:
+                        assert l.shape[1] == 5, 'labels require 5 columns each'
+                        assert (l[:, 1:5] <= 1).all(), 'non-normalized or out of bounds coordinate labels'
 
                         assert np.unique(l, axis=0).shape[0] == l.shape[0], 'duplicate labels'
-                    else:
-                        ne += 1  # label empty
-                        l = np.zeros((0, 39), dtype=np.float32) if kpt_label else np.zeros((0, 5), dtype=np.float32)
-
                 else:
-                    nm += 1  # label missing
-                    l = np.zeros((0, 39), dtype=np.float32) if kpt_label else np.zeros((0, 5), dtype=np.float32)
+                    ne += 1  # label empty
+                    l = np.zeros((0, 33), dtype=np.float32) if kpt_label else np.zeros((0, 5), dtype=np.float32)
+
+                    else:
+                        nm += 1  # label missing
+                        l = np.zeros((0, 33), dtype=np.float32) if kpt_label else np.zeros((0, 5), dtype=np.float32)
 
                 x[im_file] = [l, shape, segments]
             except Exception as e:
@@ -983,8 +983,8 @@ def random_perspective(img, targets=(), segments=(), degrees=10, translate=.1, s
             new[:, [0, 2]] = new[:, [0, 2]].clip(0, width)
             new[:, [1, 3]] = new[:, [1, 3]].clip(0, height)
             if kpt_label:
-                xy_kpts = np.ones((n * 17, 3))
-                xy_kpts[:, :2] = targets[:,5:].reshape(n*17, 2)  #num_kpt is hardcoded to 17
+                xy_kpts = np.ones((n * 14, 3))
+                xy_kpts[:, :2] = targets[:,5:].reshape(n*14, 2)  #num_kpt is now 14 for CrowdPose
                 xy_kpts = xy_kpts @ M.T # transform
                 xy_kpts = (xy_kpts[:, :2] / xy_kpts[:, 2:3] if perspective else xy_kpts[:, :2]).reshape(n, 34)  # perspective rescale or affine
                 xy_kpts[targets[:,5:]==0] = 0
