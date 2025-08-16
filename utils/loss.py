@@ -200,7 +200,7 @@ class ComputeLoss:
         for i in range(self.nl):
             anchors = self.anchors[i]
             if self.kpt_label:
-                gain[2:46] = torch.tensor(p[i].shape)[14*[3, 2]]  # xyxy gain for 14 keypoints (CrowdPose)
+                gain[2:30] = torch.tensor(p[i].shape)[14*[3, 2]]  # xyxy gain for 14 keypoints (CrowdPose)
             else:
                 gain[2:6] = torch.tensor(p[i].shape)[[3, 2, 3, 2]]  # xyxy gain
 
