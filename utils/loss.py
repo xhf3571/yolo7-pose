@@ -116,7 +116,8 @@ class ComputeLoss:
     def __call__(self, p, targets):  # predictions, targets, model
         device = targets.device
         lcls, lbox, lobj, lkpt, lkptv = torch.zeros(1, device=device), torch.zeros(1, device=device), torch.zeros(1, device=device), torch.zeros(1, device=device), torch.zeros(1, device=device)
-        sigmas = torch.tensor([.26, .25, .25, .35, .35, .79, .79, .72, .72, .62, .62, 1.07, 1.07, .87, .87, .89, .89], device=device) / 10.0
+        # Adjusted sigmas for CrowdPose's 14 keypoints
+        sigmas = torch.tensor([.26, .25, .25, .35, .35, .79, .79, .72, .72, .62, .62, 1.07, 1.07, .87], device=device) / 10.0
         tcls, tbox, tkpt, indices, anchors = self.build_targets(p, targets)  # targets
 
         # Losses
@@ -199,7 +200,7 @@ class ComputeLoss:
         for i in range(self.nl):
             anchors = self.anchors[i]
             if self.kpt_label:
-                gain[2:40] = torch.tensor(p[i].shape)[19*[3, 2]]  # xyxy gain
+                gain[2:46] = torch.tensor(p[i].shape)[14*[3, 2]]  # xyxy gain for 14 keypoints (CrowdPose)
             else:
                 gain[2:6] = torch.tensor(p[i].shape)[[3, 2, 3, 2]]  # xyxy gain
 
