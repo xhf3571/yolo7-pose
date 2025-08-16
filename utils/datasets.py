@@ -493,7 +493,7 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
                     if len(l):
                         assert (l >= 0).all(), 'negative labels'
                     if kpt_label:
-                        assert l.shape[1] == 41, 'labels require 41 columns each for CrowdPose (14 keypoints)'
+                        assert l.shape[1] == 47, 'labels require 47 columns each for CrowdPose (14 keypoints)'
                         assert (l[:, 5::3] <= 1).all(), 'non-normalized or out of bounds coordinate labels'
                         assert (l[:, 6::3] <= 1).all(), 'non-normalized or out of bounds coordinate labels'
                         # print("l shape", l.shape)
