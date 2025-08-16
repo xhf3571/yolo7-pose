@@ -101,9 +101,9 @@ def plot_skeleton_kpts(im, kpts, steps, orig_shape=None):
                         [255, 255, 255]])
 
     # CrowdPose 骨架定义 (14 个关键点)
-    # 1-左肩, 2-右肩, 3-左肘, 4-右肘, 5-左腕, 6-右腕, 7-左髋, 8-右髋, 9-左膝, 10-右膝, 11-左踝, 12-右踝, 13-头部, 14-颈部
-    skeleton = [[14, 13], [14, 1], [14, 2], [1, 3], [2, 4], [3, 5], [4, 6],
-                [14, 7], [14, 8], [7, 9], [8, 10], [9, 11], [10, 12], [7, 8]]
+    # 0-左肩, 1-右肩, 2-左肘, 3-右肘, 4-左腕, 5-右腕, 6-左髋, 7-右髋, 8-左膝, 9-右膝, 10-左踝, 11-右踝, 12-头部, 13-颈部
+    skeleton = [[13, 12], [13, 0], [13, 1], [0, 2], [1, 3], [2, 4], [3, 5],
+                [13, 6], [13, 7], [6, 8], [7, 9], [8, 10], [9, 11], [6, 7]]
 
     pose_limb_color = palette[[9, 9, 9, 7, 7, 0, 0, 7, 7, 0, 0, 0, 0, 16]]
     pose_kpt_color = palette[[9, 9, 7, 7, 0, 0, 7, 7, 0, 0, 0, 0, 16, 16]]
@@ -122,11 +122,11 @@ def plot_skeleton_kpts(im, kpts, steps, orig_shape=None):
 
     for sk_id, sk in enumerate(skeleton):
         r, g, b = pose_limb_color[sk_id]
-        pos1 = (int(kpts[(sk[0]-1)*steps]), int(kpts[(sk[0]-1)*steps+1]))
-        pos2 = (int(kpts[(sk[1]-1)*steps]), int(kpts[(sk[1]-1)*steps+1]))
+        pos1 = (int(kpts[sk[0]*steps]), int(kpts[sk[0]*steps+1]))
+        pos2 = (int(kpts[sk[1]*steps]), int(kpts[sk[1]*steps+1]))
         if steps == 3:
-            conf1 = kpts[(sk[0]-1)*steps+2]
-            conf2 = kpts[(sk[1]-1)*steps+2]
+            conf1 = kpts[sk[0]*steps+2]
+            conf2 = kpts[sk[1]*steps+2]
             if conf1<0.5 or conf2<0.5:
                 continue
         if pos1[0]%640 == 0 or pos1[1]%640==0 or pos1[0]<0 or pos1[1]<0:
