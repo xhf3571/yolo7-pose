@@ -162,7 +162,7 @@ def detect(opt):
 
     print(f'Done. ({time.time() - t0:.3f}s)')
 
-imp_path = '/home/xuhaifeng/MasterDgree/Pose_YOLOV8/ultralytics-8.1.1/ultralytics/assets/COCO-POSE/val/images'
+imp_path = '/home/disk/xuhaifeng/yolov7-pose/dataset/crowdpose/val/images'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
