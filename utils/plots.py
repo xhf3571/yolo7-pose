@@ -103,13 +103,15 @@ def plot_skeleton_kpts(im, kpts, steps, orig_shape=None):
     # CrowdPose关键点定义：0-left_shoulder, 1-right_shoulder, 2-left_elbow, 3-right_elbow, 4-left_wrist, 
     # 5-right_wrist, 6-left_hip, 7-right_hip, 8-left_knee, 9-right_knee, 10-left_ankle, 11-right_ankle, 
     # 12-head, 13-neck
+    # 注意：由于索引从0开始，所以neck的索引是13，但在数组中实际位置是13*2=26，再加1就是27，这会导致越界
+    # 因此我们需要确保所有的骨架连接都使用正确的索引，最大不超过12
     skeleton = [
-        [12, 13], [0, 13], [1, 13], [0, 2], [1, 3], [2, 4], [3, 5],
-        [6, 13], [7, 13], [6, 8], [7, 9], [8, 10], [9, 11]
+        [12, 0], [12, 1], [0, 2], [1, 3], [2, 4], [3, 5],
+        [0, 6], [1, 7], [6, 8], [7, 9], [8, 10], [9, 11]
     ]
 
-    pose_limb_color = palette[[9, 9, 9, 0, 0, 0, 0, 7, 7, 7, 7, 7, 7]]
-    pose_kpt_color = palette[[9, 9, 0, 0, 0, 0, 7, 7, 7, 7, 7, 7, 16, 16]]
+    pose_limb_color = palette[[9, 9, 0, 0, 0, 0, 7, 7, 7, 7, 7, 7]]
+    pose_kpt_color = palette[[9, 9, 0, 0, 0, 0, 7, 7, 7, 7, 7, 7, 16]]
     radius = 5
     num_kpts = len(kpts) // steps
 
