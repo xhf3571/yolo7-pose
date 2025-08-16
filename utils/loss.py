@@ -117,7 +117,7 @@ class ComputeLoss:
         device = targets.device
         lcls, lbox, lobj, lkpt, lkptv = torch.zeros(1, device=device), torch.zeros(1, device=device), torch.zeros(1, device=device), torch.zeros(1, device=device), torch.zeros(1, device=device)
         # Adjusted sigmas for CrowdPose's 14 keypoints
-        sigmas = torch.tensor([.26, .25, .25, .35, .35, .79, .79, .72, .72, .62, .62, 1.07, 1.07, .87], device=device) / 10.0
+        sigmas = torch.tensor([.26, .25, .25, .35, .35, .79, .79, .72, .72, .62, .62, 1.07, 1.07, 1.07], device=device) / 10.0
         tcls, tbox, tkpt, indices, anchors = self.build_targets(p, targets)  # targets
 
         # Losses

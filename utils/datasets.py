@@ -499,7 +499,10 @@ class LoadImagesAndLabels(Dataset):  # for training/testing
                         # print("l shape", l.shape)
                         kpts = np.zeros((l.shape[0], 33))
                         for i in range(len(l)):
-                            kpt = np.delete(l[i,5:], np.arange(2, l.shape[1]-5, 3))  #remove the occlusion paramater from the GT
+                            # Remove the occlusion parameter (every 3rd column) from the keypoint data
+                            # For 14 keypoints, we have 42 columns (14*3) of keypoint data starting from index 5
+                            # We want to keep only the x,y coordinates and remove the visibility parameter
+                            kpt = np.delete(l[i,5:], np.arange(2, 42, 3))  # Remove every 3rd column (visibility)
                             kpts[i] = np.hstack((l[i, :5], kpt))
                         l = kpts
                         assert l.shape[1] == 33, 'labels require 33 columns each after removing occlusion paramater'
