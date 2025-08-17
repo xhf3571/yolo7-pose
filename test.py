@@ -284,9 +284,16 @@ def test(data,
     
     # 输出更多的评估指标
     if len(stats) and stats[0].any():
-        # 计算AP75 (IoU=0.75的AP)
-        # iouv = torch.linspace(0.5, 0.95, 10)，所以索引5对应IoU=0.75
-        ap75 = ap[:, 5].mean() if ap.shape[1] > 5 else map  # AP at IoU=0.75
+        # 安全地计算AP75 (IoU=0.75的AP)
+        try:
+            # 检查ap的形状和维度
+            if hasattr(ap, 'shape') and len(ap.shape) >= 2 and ap.shape[1] > 5:
+                ap75 = ap[:, 5].mean()  # AP at IoU=0.75
+            else:
+                ap75 = map  # 如果无法获取AP75，使用map作为备选
+        except Exception as e:
+            print(f"计算AP75时出错: {e}")
+            ap75 = map  # 出错时使用map作为备选
         
         # 输出更多的评估指标
         print('\n详细评估指标:')
