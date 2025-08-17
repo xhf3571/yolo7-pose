@@ -271,12 +271,29 @@ def test(data,
     # Compute statistics
     stats = [np.concatenate(x, 0) for x in zip(*stats)]  # to numpy
     if len(stats) and stats[0].any():
-        p, r, ap, f1, ap_class = ap_per_class(*stats, plot=plots, save_dir=save_dir, names=names)
-        ap50, ap = ap[:, 0], ap.mean(1)  # AP@0.5, AP@0.5:0.95
+        p, r, ap_raw, f1, ap_class = ap_per_class(*stats, plot=plots, save_dir=save_dir, names=names)
+        # 保存原始的ap，以便后续计算更多指标
+        print(f"\nAP原始形状: {ap_raw.shape}")
+        
+        # 计算各种指标
+        ap50 = ap_raw[:, 0]  # AP@0.5
+        
+        # 计算AP75 (IoU=0.75的AP)
+        # iouv = torch.linspace(0.5, 0.95, 10)，所以索引5对应IoU=0.75
+        # 索引计算：(0.75 - 0.5) / (0.95 - 0.5) * 9 = 5
+        ap75_idx = int(round((0.75 - 0.5) / (0.95 - 0.5) * (ap_raw.shape[1] - 1)))
+        ap75 = ap_raw[:, ap75_idx] if ap_raw.shape[1] > ap75_idx else None
+        
+        ap = ap_raw.mean(1)  # AP@0.5:0.95
+        
+        # 计算平均值
         mp, mr, map50, map = p.mean(), r.mean(), ap50.mean(), ap.mean()
+        map75 = ap75.mean() if ap75 is not None else None  # mAP@0.75 (如果可用)
+        
         nt = np.bincount(stats[3].astype(np.int64), minlength=nc)  # number of targets per class
     else:
         nt = torch.zeros(1)
+        map75 = None
 
     # Print results
     pf = '%20s' + '%12i' * 2 + '%12.3g' * 4  # print format
@@ -284,33 +301,29 @@ def test(data,
     
     # 输出更多的评估指标
     if len(stats) and stats[0].any():
-        # 打印AP的类型和形状，以便调试
-        print(f"\nAP类型: {type(ap)}")
-        if isinstance(ap, np.ndarray):
-            print(f"AP形状: {ap.shape}")
-        
-        # 安全地计算AP75 (IoU=0.75的AP)
-        ap75 = map  # 默认使用map作为备选
-        try:
-            # 检查ap的类型和形状
-            if isinstance(ap, np.ndarray) and len(ap.shape) >= 2 and ap.shape[1] > 5:
-                ap75 = ap[:, 5].mean()
-            elif isinstance(ap, list) and len(ap) > 0 and isinstance(ap[0], np.ndarray) and ap[0].shape[0] > 5:
-                ap75 = np.mean([a[5] for a in ap])
-        except Exception as e:
-            print(f"计算AP75时出错: {e}")
-        
-        # 输出更多的评估指标
-        print('\n详细评估指标:')
-        print(f'AP50-90: {map:.5f}')  # mAP@0.5:0.95
-        print(f'AP50: {map50:.5f}')   # mAP@0.5
-        print(f'AP75: {ap75:.5f}')    # mAP@0.75
-        
-        # 根据目标大小计算AP (小、中、大)
-        # 这里我们使用整体mAP作为近似值
-        print(f'APE (小目标): {map:.5f}')
-        print(f'APM (中目标): {map:.5f}')
-        print(f'APL (大目标): {map:.5f}')
+        # 使用map75变量，它是在前面计算的
+        if map75 is not None:
+            print('\n详细评估指标:')
+            print(f'AP50-95 (主要指标): {map:.5f}')  # mAP@0.5:0.95
+            print(f'AP50: {map50:.5f}')   # mAP@0.5
+            print(f'AP75: {map75:.5f}')   # mAP@0.75
+            
+            # 根据目标大小计算AP (小、中、大)
+            # 这里我们使用整体mAP作为近似值
+            print(f'APE (小目标): {map:.5f}')
+            print(f'APM (中目标): {map:.5f}')
+            print(f'APL (大目标): {map:.5f}')
+        else:
+            print('\n详细评估指标:')
+            print(f'AP50-95 (主要指标): {map:.5f}')  # mAP@0.5:0.95
+            print(f'AP50: {map50:.5f}')   # mAP@0.5
+            print(f'AP75: 不可用')   # AP@0.75不可用
+            
+            # 根据目标大小计算AP (小、中、大)
+            # 这里我们使用整体mAP作为近似值
+            print(f'APE (小目标): {map:.5f}')
+            print(f'APM (中目标): {map:.5f}')
+            print(f'APL (大目标): {map:.5f}')
 
     # Print results per class
     if (verbose or (nc < 50 and not training)) and nc > 1 and len(stats):
