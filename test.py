@@ -77,7 +77,7 @@ def test(data,
     # Configure
     model.eval()
     model.model[-1].flip_test = False
-    model.model[-1].flip_index = [0, 2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15]
+    model.model[-1].flip_index = [1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 12, 13]  # 修改为CrowdPose的14个关键点
     if isinstance(data, str):
         is_coco = data.endswith('coco.yaml') or data.endswith('coco_kpts.yaml')
         with open(data) as f:
@@ -322,7 +322,15 @@ def test(data,
                 eval.evaluate()
                 eval.accumulate()
                 eval.summarize()
-                map, map50 = eval.stats[:2]  # update results (mAP@0.5:0.95, mAP@0.5)
+                # 提取更多的评估指标
+                map, map50, map75, mape, mapm, mapl = eval.stats[:6]  # update results (mAP@0.5:0.95, mAP@0.5, mAP@0.75, mAPsmall, mAPmedium, mAPlarge)
+                print(f'\nCOCO评估指标:')
+                print(f'AP50-95 (主要指标): {map:.5f}')
+                print(f'AP50: {map50:.5f}')
+                print(f'AP75: {map75:.5f}')
+                print(f'APE (小目标): {mape:.5f}')
+                print(f'APM (中目标): {mapm:.5f}')
+                print(f'APL (大目标): {mapl:.5f}')
             except Exception as e:
                 print(f'pycocotools unable to run: {e}')
 
@@ -345,7 +353,15 @@ def test(data,
                 eval.evaluate()
                 eval.accumulate()
                 eval.summarize()
-                map, map50 = eval.stats[:2]  # update results (mAP@0.5:0.95, mAP@0.5)
+                # 提取更多的评估指标
+                map, map50, map75, mape, mapm, mapl = eval.stats[:6]  # update results (mAP@0.5:0.95, mAP@0.5, mAP@0.75, mAPsmall, mAPmedium, mAPlarge)
+                print(f'\nCOCO关键点评估指标:')
+                print(f'AP50-95 (主要指标): {map:.5f}')
+                print(f'AP50: {map50:.5f}')
+                print(f'AP75: {map75:.5f}')
+                print(f'APE (小目标): {mape:.5f}')
+                print(f'APM (中目标): {mapm:.5f}')
+                print(f'APL (大目标): {mapl:.5f}')
             except Exception as e:
                 print(f'xtcocotools unable to run: {e}')
 
