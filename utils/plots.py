@@ -111,12 +111,12 @@ def plot_skeleton_kpts(im, kpts, steps, orig_shape=None):
     ]
 
     pose_limb_color = palette[[9, 9, 0, 0, 0, 0, 7, 7, 7, 7, 7, 7]]
-    pose_kpt_color = palette[[9, 9, 0, 0, 0, 0, 7, 7, 7, 7, 7, 7, 16]]
+    pose_kpt_color = palette[[9, 9, 0, 0, 0, 0, 7, 7, 7, 7, 7, 7, 16, 16, 16, 16, 16]]  # 扩展颜色数组以支持更多关键点
     radius = 5
     num_kpts = len(kpts) // steps
 
     for kid in range(num_kpts):
-        r, g, b = pose_kpt_color[kid]
+        r, g, b = pose_kpt_color[min(kid, len(pose_kpt_color)-1)]  # 确保索引不会超出范围
         x_coord, y_coord = kpts[steps * kid], kpts[steps * kid + 1]
         if not (x_coord % 640 == 0 or y_coord % 640 == 0):
             if steps == 3:
@@ -126,7 +126,10 @@ def plot_skeleton_kpts(im, kpts, steps, orig_shape=None):
             cv2.circle(im, (int(x_coord), int(y_coord)), radius, (int(r), int(g), int(b)), -1)
 
     for sk_id, sk in enumerate(skeleton):
-        r, g, b = pose_limb_color[sk_id]
+        r, g, b = pose_limb_color[min(sk_id, len(pose_limb_color)-1)]  # 确保索引不会超出范围
+        # 确保关键点索引不会超出范围
+        if sk[0] >= num_kpts or sk[1] >= num_kpts:
+            continue
         pos1 = (int(kpts[sk[0]*steps]), int(kpts[sk[0]*steps+1]))
         pos2 = (int(kpts[sk[1]*steps]), int(kpts[sk[1]*steps+1]))
         if steps == 3:
