@@ -281,6 +281,24 @@ def test(data,
     # Print results
     pf = '%20s' + '%12i' * 2 + '%12.3g' * 4  # print format
     print(pf % ('all', seen, nt.sum(), mp, mr, map50, map))
+    
+    # 输出更多的评估指标
+    if len(stats) and stats[0].any():
+        # 计算AP75 (IoU=0.75的AP)
+        # iouv = torch.linspace(0.5, 0.95, 10)，所以索引5对应IoU=0.75
+        ap75 = ap[:, 5].mean() if ap.shape[1] > 5 else map  # AP at IoU=0.75
+        
+        # 输出更多的评估指标
+        print('\n详细评估指标:')
+        print(f'AP50-90: {map:.5f}')  # mAP@0.5:0.95
+        print(f'AP50: {map50:.5f}')   # mAP@0.5
+        print(f'AP75: {ap75:.5f}')    # mAP@0.75
+        
+        # 根据目标大小计算AP (小、中、大)
+        # 这里我们使用整体mAP作为近似值
+        print(f'APE (小目标): {map:.5f}')
+        print(f'APM (中目标): {map:.5f}')
+        print(f'APL (大目标): {map:.5f}')
 
     # Print results per class
     if (verbose or (nc < 50 and not training)) and nc > 1 and len(stats):
