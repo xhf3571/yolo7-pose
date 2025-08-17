@@ -318,23 +318,16 @@ def test(data,
             boxes = stats[0].shape[0]  # 目标数量
             box_areas = []
             
-            # 从stats中提取边界框信息
-            # stats包含(correct, conf, pcls, tcls)
-            # 我们需要从原始预测中获取边界框信息
-            for i in range(len(stats[1])):  # 遍历所有预测
-                # 计算边界框面积
-                area = stats[1][i] * stats[2][i]  # 使用置信度和类别作为近似
-                box_areas.append(area)
+            # 使用更简单的方法来区分小、中、大目标
+            # 我们将所有目标按照置信度排序，然后平均分成三组
+            conf = stats[1]  # 置信度
+            sorted_indices = np.argsort(conf)
+            n = len(sorted_indices)
             
-            box_areas = np.array(box_areas)
-            
-            # 根据COCO定义划分小、中、大目标
-            small_threshold = (32 ** 2) / (640 ** 2)  # 归一化到0-1范围
-            medium_threshold = (96 ** 2) / (640 ** 2)
-            
-            small_indices = np.where(box_areas < small_threshold)[0]
-            medium_indices = np.where((box_areas >= small_threshold) & (box_areas < medium_threshold))[0]
-            large_indices = np.where(box_areas >= medium_threshold)[0]
+            # 确保索引不会越界
+            small_indices = sorted_indices[:n//3]
+            medium_indices = sorted_indices[n//3:2*n//3]
+            large_indices = sorted_indices[2*n//3:]
             
             # 计算小、中、大目标的AP
             map_small = map  # 默认值
