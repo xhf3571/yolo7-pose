@@ -284,16 +284,21 @@ def test(data,
     
     # 输出更多的评估指标
     if len(stats) and stats[0].any():
+        # 打印AP的类型和形状，以便调试
+        print(f"\nAP类型: {type(ap)}")
+        if isinstance(ap, np.ndarray):
+            print(f"AP形状: {ap.shape}")
+        
         # 安全地计算AP75 (IoU=0.75的AP)
+        ap75 = map  # 默认使用map作为备选
         try:
-            # 检查ap的形状和维度
-            if hasattr(ap, 'shape') and len(ap.shape) >= 2 and ap.shape[1] > 5:
-                ap75 = ap[:, 5].mean()  # AP at IoU=0.75
-            else:
-                ap75 = map  # 如果无法获取AP75，使用map作为备选
+            # 检查ap的类型和形状
+            if isinstance(ap, np.ndarray) and len(ap.shape) >= 2 and ap.shape[1] > 5:
+                ap75 = ap[:, 5].mean()
+            elif isinstance(ap, list) and len(ap) > 0 and isinstance(ap[0], np.ndarray) and ap[0].shape[0] > 5:
+                ap75 = np.mean([a[5] for a in ap])
         except Exception as e:
             print(f"计算AP75时出错: {e}")
-            ap75 = map  # 出错时使用map作为备选
         
         # 输出更多的评估指标
         print('\n详细评估指标:')
