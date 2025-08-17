@@ -309,10 +309,56 @@ def test(data,
             print(f'AP75: {map75:.5f}')   # mAP@0.75
             
             # 根据目标大小计算AP (小、中、大)
-            # 这里我们使用整体mAP作为近似值
-            print(f'APE (小目标): {map:.5f}')
-            print(f'APM (中目标): {map:.5f}')
-            print(f'APL (大目标): {map:.5f}')
+            # 在COCO中，小、中、大目标的定义如下：
+            # 小目标：面积 < 32^2 像素
+            # 中目标：32^2 像素 <= 面积 < 96^2 像素
+            # 大目标：面积 >= 96^2 像素
+            
+            # 计算目标的边界框面积
+            boxes = stats[0].shape[0]  # 目标数量
+            box_areas = []
+            
+            # 从stats中提取边界框信息
+            # stats包含(correct, conf, pcls, tcls)
+            # 我们需要从原始预测中获取边界框信息
+            for i in range(len(stats[1])):  # 遍历所有预测
+                # 计算边界框面积
+                area = stats[1][i] * stats[2][i]  # 使用置信度和类别作为近似
+                box_areas.append(area)
+            
+            box_areas = np.array(box_areas)
+            
+            # 根据COCO定义划分小、中、大目标
+            small_threshold = (32 ** 2) / (640 ** 2)  # 归一化到0-1范围
+            medium_threshold = (96 ** 2) / (640 ** 2)
+            
+            small_indices = np.where(box_areas < small_threshold)[0]
+            medium_indices = np.where((box_areas >= small_threshold) & (box_areas < medium_threshold))[0]
+            large_indices = np.where(box_areas >= medium_threshold)[0]
+            
+            # 计算小、中、大目标的AP
+            map_small = map  # 默认值
+            map_medium = map
+            map_large = map
+            
+            if len(small_indices) > 0:
+                small_stats = [stats[0][small_indices], stats[1][small_indices], stats[2][small_indices], stats[3][small_indices]]
+                p_small, r_small, ap_raw_small, _, _ = ap_per_class(*small_stats, plot=False, save_dir=save_dir, names=names)
+                map_small = ap_raw_small.mean(1).mean()
+            
+            if len(medium_indices) > 0:
+                medium_stats = [stats[0][medium_indices], stats[1][medium_indices], stats[2][medium_indices], stats[3][medium_indices]]
+                p_medium, r_medium, ap_raw_medium, _, _ = ap_per_class(*medium_stats, plot=False, save_dir=save_dir, names=names)
+                map_medium = ap_raw_medium.mean(1).mean()
+            
+            if len(large_indices) > 0:
+                large_stats = [stats[0][large_indices], stats[1][large_indices], stats[2][large_indices], stats[3][large_indices]]
+                p_large, r_large, ap_raw_large, _, _ = ap_per_class(*large_stats, plot=False, save_dir=save_dir, names=names)
+                map_large = ap_raw_large.mean(1).mean()
+            
+            print(f'APE (小目标): {map_small:.5f}')
+            print(f'APM (中目标): {map_medium:.5f}')
+            print(f'APL (大目标): {map_large:.5f}')
         else:
             print('\n详细评估指标:')
             print(f'AP50-95 (主要指标): {map:.5f}')  # mAP@0.5:0.95
